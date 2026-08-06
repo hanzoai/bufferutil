@@ -1,0 +1,19 @@
+# Canonical CI/CD config for hanzoai/bufferutil — read by the hanzoai/ci
+# reusable workflow (.hanzo/workflows/cicd.yml) and by platform.hanzo.ai.
+#
+# LIBRARY: the WebSocket mask/unmask primitive — a C++ N-API addon with a pure-JS
+# fallback. No image, no deploy — it ships from a tag.
+#
+# `npm install` is load-bearing here and is not just "fetch the deps": the
+# package's own `install` script is node-gyp-build, so this compiles src/
+# against the runner's Node headers. That is the gate for the half of this
+# library that a JS test cannot reach — if the addon does not build, this goes
+# red before mocha ever starts.
+#
+# Then mocha runs test/, which checks that the masked output is byte-identical
+# across the native and fallback paths. Both halves, in one command, which is
+# the only way to test a package whose whole job is that two implementations
+# agree.
+test:
+  - name: build-and-test
+    run: npm install && npm test
